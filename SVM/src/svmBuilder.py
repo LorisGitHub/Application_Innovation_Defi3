@@ -63,6 +63,16 @@ class SvmBuilder:
         '''init the frequency algorithm, use frequency of word in sentence'''
         index = 0
         self.xmlLength = len(self.root.findall('comment'))
+        if self.algo == 'i':
+            print("preparing Tf-Idf")
+            for comment in self.root.findall('comment'):
+                index += 1
+                splitedReview = self.splitReview(comment.find('commentaire').text)
+                self.prepareDictionnaryForIdf(splitedReview)
+                if(index % 1000 == 0):
+                    print(index, flush=True, end='\r')
+        index = 0
+        print("executing normal loop")
         for comment in self.root.findall('comment'):
             index += 1
             note = str(int(float(comment.find('note').text.replace(',', '.'))*2)) if self.train else "0"
@@ -101,12 +111,10 @@ class SvmBuilder:
         return svmReview
 
 
-    def buildIdfReview(self, splitedReview):
-        if splitedReview == ' ':
-            return splitedReview
+    def prepareDictionnaryForIdf(self, splitedReview):
+        if splitedReview == ' ' or splitedReview == None:
+            return None
 
-        svmReview = ''
-        localIndexes = []
         localDictionary = []
         for item in splitedReview:
             if (self.stopWords and item not in self.french_stopwords) or self.stopWords == False :
@@ -114,14 +122,28 @@ class SvmBuilder:
                     itemCopy = self.stemmer.stem(item.lower())
                 else: 
                     itemCopy = item.lower()
-                if(itemCopy not in self.dictionnary):
+                if itemCopy not in self.dictionnary:
                     self.dictionnary[itemCopy] = self.wordIndex
                     self.dictionnary_count[self.wordIndex] = 1
-                    localDictionary.append(itemCopy)
                     self.wordIndex += 1
-                elif (itemCopy not in localDictionary):
+                    localDictionary.append(itemCopy)
+                elif itemCopy not in localDictionary:
                     self.dictionnary_count[self.dictionnary[itemCopy]] += 1
                     localDictionary.append(itemCopy)
+
+
+    def buildIdfReview(self, splitedReview):
+        if splitedReview == ' ' or splitedReview == None:
+            return ' '
+
+        svmReview = ''
+        localIndexes = []
+        for item in splitedReview:
+            if (self.stopWords and item not in self.french_stopwords) or self.stopWords == False :
+                if self.stem:
+                    itemCopy = self.stemmer.stem(item.lower())
+                else: 
+                    itemCopy = item.lower()
                 localIndexes.append(self.dictionnary[itemCopy])
 
         uniqLocalIndex = list(set(localIndexes))
@@ -130,7 +152,6 @@ class SvmBuilder:
             TF = localIndexes.count(word) / len(localIndexes)
             IDF = math.log(self.xmlLength / self.dictionnary_count[word])
             svmReview += " " + str(word) + ":" + str(TF*IDF)
-        # print(localDictionary)
         return svmReview
 
 

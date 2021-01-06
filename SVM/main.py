@@ -8,20 +8,16 @@ def arguments_parse():
 	parser.add_argument("file", help="Nom du document")
 	parser.add_argument("-t", "--type", help="Type de traitement (train/test)", type=str, default="train")
 	parser.add_argument("-a", "--algo", type=str, default="base", help="Choix de l'algorithme: \n"
-											"c = class\n"
 											"b = base\n"
 											"f = frequency\n"
-											"i = tf - idf\n"
-											"w = word embedding\n"
-											"t = fast 2 text\n"
-											"o = other\n")
+											"i = tf - idf\n")
 	args = parser.parse_args()
 
 	# Optionnal parameters
 	useStemmer = False
 	useStopWords = False
 	removeLinks = False
-	removePunctuation = True
+	removePunctuation = False
 
 	svmBuilder = SvmBuilder(args.file, args.type == "train", args.algo, useStemmer, useStopWords, removeLinks, removePunctuation)
 	if args.algo == "b":
