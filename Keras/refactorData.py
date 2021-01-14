@@ -11,6 +11,7 @@ def loadFile(nameFile):
 
 def read(root):
     notes = {}
+    print(len(root.findall('comment')))
     for comment in root.findall('comment'):
         note = comment.find('note').text
         if note not in notes:
@@ -46,4 +47,4 @@ def writeToXml(lines, filename):
 
 root = loadFile(sys.argv[1])
 result = read(root)
-writeToXml(result, sys.argv[1])
+#writeToXml(result, sys.argv[1])

@@ -42,6 +42,7 @@ class SvmBuilder:
         if(self.punctuation):
             #review = re.sub('(@[A-Za-z0-9_]+)','', review)
             review = review.translate(str.maketrans('', '', string.punctuation))
+        review = review.replace(",", " ").replace("'", "' ").replace("‘", "' ").replace("…", " ").replace("«", " ").replace("»", " ").replace(".", " ").replace("!", " ").replace("?", " ").replace("\"", " ").replace("("    , " ").replace(")", " ").replace(":", " ").replace("[", " ").replace("]", " ").lower()
         return review.split(' ')
 
 
@@ -151,7 +152,7 @@ class SvmBuilder:
         for word in uniqLocalIndex:
             TF = localIndexes.count(word) / len(localIndexes)
             IDF = math.log(self.xmlLength / self.dictionnary_count[word])
-            svmReview += " " + str(word) + ":" + str(TF*IDF)
+            svmReview += " " + str(word) + ":" + str(TF)
         return svmReview
 
 
